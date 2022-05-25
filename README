@@ -1,0 +1,6 @@
+# README
+
+The code in this directory performs some exemplar analysis used in "Gava, G.P. et al. Integrating new memories into the hippocampal network activity space. Nat Neurosci 24, 326–330 (2021). https://doi.org/10.1038/s41593-021-00804-w"
+
+The Jupyter notebook 'cofiringTopology.ipynb' extracts the network parameters shown in Fig. 1 and Extended Data Fig. 2 of the paper (i.e. strength, clustering coefficient ad geodesic path length) of one exemplar pre-computed co-firing graph per experiment type (i.e. CPP, SPP, novel only and familiar reward). These data are stored in the homonymous folder. Instructions on how to obtain co-firing graph from the neuron's spiketrains are provided in the notebook, but that step wasn't implemented here to avoid large data uploads. 
+Moreover, in the notebook also the topological distance across co-firing graphs is computed and visualised (Fig. 2).
