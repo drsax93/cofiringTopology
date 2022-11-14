@@ -4,16 +4,76 @@
 import sys, os, fnmatch
 import numpy as np
 import scipy.linalg as spl
+from scipy.ndimage.filters import gaussian_filter1d
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 
 ### Utility functions
 
+### Loading data
+
+def loadSpikeTimes(b, MinCluId=2, res2eeg=(1250./20000)):
+    '''Load spike times information
+    INPUT:
+    - [b]:       <str> containing "block base"
+    - MinCluId:  <int> from which to consider clusters
+    - res2eeg:   <float> conversion rate from ephys to lfp sampling
+    OUTPUT:
+    - [stages]:  <DataFrame>'''
+
+    res = pd.read_csv(b+'.res', header=None, squeeze=True).values
+    clu = pd.read_csv(b+'.clu', squeeze=True).values
+    if MinCluId is not None:
+            mask = clu >= MinCluId
+            clu = clu[mask]
+            res = res[mask]
+    res = np.round(res*res2eeg).astype(int)
+
+    return res,clu
+
+def loadStages(b):
+    '''Load "stages" information (mostly from desen- and resofs-file).
+    INPUT:
+    - [b]:       <str> containing "block base"
+    OUTPUT:
+    - [stages]:  <DataFrame>'''
+
+    ## Read desen- and resofs-file
+    stages = pd.read_csv(b+'.desen', header=None, names=['desen'])
+    resofs = pd.read_csv(b+'.resofs', header=None)
+    ## Add start- and end-time and filebase of each session
+    stages['start_t'] = [0] + list(resofs.squeeze().values)[:-1]
+    stages['end_t'] = resofs
+    ## Let the index of this dataframe start from 1 instead of 0
+    stages.index += 1
+    return stages
+
+def loadUnits(b):
+    '''Load "units" information
+    INPUT:
+    - [b]:       <str> containing "block base"
+    OUTPUT:
+    - [trodes]:  <DataFrame>'''
+    
+    units = pd.read_csv(b+'.des', header=None, names=['des'])
+    ## the index of the units dataframe start from 2(!) instead of 0
+    units.index += 2
+    return units
+
+def loadTracking(b, smoothing=1, ext = 'whl'):
+        '''Load position data (whl)'''
+        trk = pd.read_csv(b+'.' +ext, sep='\s+', header=None).values
+        trk[trk<=0] = np.nan
+        if smoothing is not None:
+                trk = gaussian_filter1d(trk, smoothing, axis=0)
+        return pd.DataFrame(trk, columns=['x','y'])
+
+
 ### Clustering coefficient
 
 def clustering(G, nodes=None, weight='weight'):
-    """Taken from Network#X
+    """Taken from NetworkX
 
     Compute the clustering coefficient for nodes.
 
@@ -181,11 +241,11 @@ def wNetGeoPathLength(mat,directed=False):
 
 ### Riemmanian log-Euclidean distance
 
-def dist_riem_LE(A,B):
+def distRiemLE(A,B):
     # compute the distance between the =ve matrices A and B
     return np.linalg.norm(spl.logm(A) - spl.logm(B))
 
-def symm_matPerturb(g,scale=1):
+def symmMatPerturb(g,scale=1):
     # perturb the matrix `g` by adding white noise of amplitude `scale*std(g)`
     perturb = np.random.random(g.shape) * scale*np.std(g)
     perturb[np.tril_indices(perturb.shape[0])] = 0
