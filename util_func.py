@@ -177,16 +177,15 @@ def getPlaceMap(track, spikes, active, nE=21, spks2tracking=1/32,
     Xedges = np.linspace(np.min(track['x']), np.max(track['x']), nE)
     Yedges = np.linspace(np.min(track['y']), np.max(track['y']), nE)
     # obtain occupancy map
-    totalPos = active
-    y = track['y'][totalPos]
+    y = track['y'][active]
     y = y[~np.isnan(y)]
-    x = track['x'][totalPos]
+    x = track['x'][active]
     x = x[~np.isnan(x)]
     y = y[~y.index.duplicated(keep='first')]
     x = x[~x.index.duplicated(keep='first')]
     OccMap, _, _ = np.histogram2d(x, y, [Xedges, Yedges])
     mask = (OccMap) > 0
-    OccMap = (OccMap) / (spks2tracking * 1250.)  # type: Union[float, Any]
+    OccMap = (OccMap) / (spks2tracking * 1250.)  # convert from samples to seconds
     # obtain the spike count map
     validSpikes = np.in1d(np.round(spikes * spks2tracking).astype(int), np.where(active)[0])
     spikesPos = np.round(spikes[validSpikes] * spks2tracking).astype(int)
