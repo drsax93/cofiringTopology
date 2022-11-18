@@ -8,6 +8,7 @@ import scipy.signal as sig
 import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
+from typing import Union, Any
 
 
 # Loading data functions
@@ -117,16 +118,13 @@ def matGaussianSmooth(mat, sigma, nPoints=0, normOperator=np.sum):
     """
     if nPoints < sigma:
         nPoints = int(4 * sigma)
-
+    # define smoothing gaussian kernel
     kernel = sig.get_window(('gaussian', sigma), nPoints)
     kernel = kernel / normOperator(kernel)
-
-    if len(np.shape(mat)) < 2:
-        smoothMat = np.convolve(mat, kernel, 'same')
-    else:
-        smoothMat = np.ones(np.shape(mat)) * np.nan
-        for row_i in range(len(mat)):
-            smoothMat[row_i, :] = np.convolve(mat[row_i, :], kernel, 'same')
+    # apply smoothing
+    smoothMat = np.ones(np.shape(mat)) * np.nan
+    for row_i in range(len(mat)):
+        smoothMat[row_i, :] = np.convolve(mat[row_i, :], kernel, 'same')
     return smoothMat, kernel
 
 
@@ -145,7 +143,98 @@ def get_actmat_the(actmat, theta):
     return actmat_the
 
 
-# Co-firing graphs functions
+# Neurons' activity functions
+
+def getISI(spikeTrains, sampT=50):
+    """INPUT:
+    # spikeTrains: list of lists containing the raw spike times of the neurons (tetrode sampled)
+    # sampT: sampling period in us of the spike times, default is 50
+    # OUTPUT:
+    # ISI: list of ISIs in ms
+    """
+    ISI = []; ID = []
+    for i in range(len(spikeTrains)):
+        if spikeTrains[i].shape[0]>1: # consider only spiketrains > 1 spike
+            ID.append(i)
+            ISI.append(np.zeros((spikeTrains[i].shape[0] - 1)))
+        else: # there's no isi if neuron fired only one spike
+            ISI.append(np.nan)
+    # ISI is derivative (diff operator) of spike times
+    for i in ID:
+        ISI[i] = np.diff(spikeTrains[i]) * (sampT*1e-6)
+    return ISI
+
+
+def getPlaceMap(track, spikes, active, nE=21, spks2tracking=1/32,
+                    mazeDim=37, smoothStdCm=2):
+    """obtain the placemap for one cell
+    """
+    # convert pixels to cm
+    track2cm = (np.max(track['y']) - np.min(track['y'])) / mazeDim  # from pixels to cm
+    smoothStdPixels = smoothStdCm * track2cm # smoothing parameter
+    # obtain bin edges in pixels
+    bin2pixels = (nE - 1) / (np.max(track['y']) - np.min(track['y']))  # no pixels for 1 bin
+    Xedges = np.linspace(np.min(track['x']), np.max(track['x']), nE)
+    Yedges = np.linspace(np.min(track['y']), np.max(track['y']), nE)
+    # obtain occupancy map
+    totalPos = active
+    y = track['y'][totalPos]
+    y = y[~np.isnan(y)]
+    x = track['x'][totalPos]
+    x = x[~np.isnan(x)]
+    y = y[~y.index.duplicated(keep='first')]
+    x = x[~x.index.duplicated(keep='first')]
+    OccMap, _, _ = np.histogram2d(x, y, [Xedges, Yedges])
+    mask = (OccMap) > 0
+    OccMap = (OccMap) / (spks2tracking * 1250.)  # type: Union[float, Any]
+    # obtain the spike count map
+    validSpikes = np.in1d(np.round(spikes * spks2tracking).astype(int), np.where(active)[0])
+    spikesPos = np.round(spikes[validSpikes] * spks2tracking).astype(int)
+    y = track['y'][spikesPos]
+    y = y[~np.isnan(y)]
+    x = track['x'][spikesPos]
+    x = x[~np.isnan(x)]
+    # if less than 2 spikes fired, return a zeros matrix
+    if len(x) < 2:
+        nSpikesPerSpace = np.zeros((int(nE - 1), int(nE - 1)))
+    else:
+        nSpikesPerSpace, _, _= np.histogram2d(x, y, [Xedges, Yedges])
+    # obtain the placemap -- count map / occupancy map
+    placemap = nSpikesPerSpace / OccMap
+    placemap[np.isnan(placemap)] = 0
+    placemapS, _ = matGaussianSmooth(placemap, bin2pixels * smoothStdPixels,
+                                            int(bin2pixels * smoothStdPixels * 4), np.sum)
+    placemapS, _ = matGaussianSmooth(placemapS.T, bin2pixels * smoothStdPixels,
+                                            int(bin2pixels * smoothStdPixels * 4), np.sum)
+    placemapS = placemapS.T
+    # obtain placemap's spatial info and coherence
+    meanRate = np.mean(placemap[mask])
+    OccMapProb = OccMap / np.sum(OccMap[mask])
+    information = 0 # initialise spatial info
+    auxCoh = np.array([]).reshape(0, 2)
+    for bini in range(np.size(OccMapProb, 0)):
+        for binj in range(np.size(OccMapProb, 1)):
+            if (mask[bini, binj]) & (placemap[bini, binj] > 0):
+                information += placemap[bini, binj] * \
+                               np.log2(placemap[bini, binj] / meanRate) * OccMapProb[bini, binj]
+                try:
+                    aux1 = np.nanmean(np.array([placemap[bini, binj + 1], placemap[bini + 1, binj], \
+                                                placemap[bini + 1, binj + 1], placemap[bini, binj - 1], \
+                                                placemap[bini - 1, binj], placemap[bini - 1, binj - 1], \
+                                                placemap[bini + 1, binj - 1], placemap[bini - 1, binj + 1]]))
+
+                    auxCoh = np.vstack((auxCoh, np.array([placemap[bini, binj], aux1]).T))
+                except:
+                    pass
+    placeMapInfoPerSpike = information / meanRate
+    spatialInfo = [information, placeMapInfoPerSpike]
+    try: placeMapCoh = stats.pearsonr(auxCoh[:, 0], auxCoh[:, 1])[0]
+    except: placeMapCoh = 0
+    # return
+    return OccMap, placemap, placemapS, spatialInfo, placeMapCoh
+
+
+# Neuronal co-firing graphs functions
 
 def corr_metric(A,B):
     """Obtain the correlation distance metric between the rows of A and B"""
@@ -168,9 +257,9 @@ def corrGraph(dat, THR=0):
     ccorr = np.zeros((dat.shape[1],dat.shape[1]))
     ccorr = corr_metric(dat.T,dat.T)
     np.fill_diagonal(ccorr, 0)
-    cormat = ccorr.copy()
-    cormat[np.abs(cormat)<THR] = 0
-    return cormat
+    corrmat = ccorr.copy()
+    corrmat[np.abs(corrmat)<THR] = 0
+    return corrmat
 
 
 def GLMgraph_lin(actmat_, symm=1, z=1):
