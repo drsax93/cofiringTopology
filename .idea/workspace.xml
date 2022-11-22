@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="864c80b3-7db1-45c2-8c42-ab0facd50410" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/util_func.py" beforeDir="false" afterPath="$PROJECT_DIR$/util_func.py" afterDir="false" />
-    </list>
+    <list default="true" id="864c80b3-7db1-45c2-8c42-ab0facd50410" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -57,7 +54,7 @@
       <workItem from="1668875753379" duration="2113000" />
       <workItem from="1669029034798" duration="3014000" />
       <workItem from="1669120449860" duration="1111000" />
-      <workItem from="1669125623046" duration="65000" />
+      <workItem from="1669125623046" duration="196000" />
     </task>
     <task id="LOCAL-00001" summary="Modified README file and added requirement.txt">
       <created>1668877488410</created>
@@ -101,7 +98,14 @@
       <option name="project" value="LOCAL" />
       <updated>1669123849205</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="refactoring function names">
+      <created>1669125714386</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1669125714386</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -113,6 +117,7 @@
     <MESSAGE value="Added PC3 visualization and description" />
     <MESSAGE value="Modified README to be markdown" />
     <MESSAGE value="README formatting" />
-    <option name="LAST_COMMIT_MESSAGE" value="README formatting" />
+    <MESSAGE value="refactoring function names" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactoring function names" />
   </component>
 </project>
