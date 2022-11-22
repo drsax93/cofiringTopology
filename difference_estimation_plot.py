@@ -8,6 +8,7 @@ import matplotlib.gridspec as gridspec
 import seaborn as sns 
 
 
+#########################################
 # NESTED SUBPLOTS
 
 def nested_subplots(fig=None, r1=(1,2), r2=(2,1), hspace=.2, wspace=.2):
@@ -30,12 +31,14 @@ def nested_subplots(fig=None, r1=(1,2), r2=(2,1), hspace=.2, wspace=.2):
     return axs
 
 
+#########################################
 # SWARMPLOT
 
 def swarmplot(df, indeces, ax, vertical=1, spread=3, trend=1, operation=np.mean,
               paired=False, SWARM=1, swarmPlot_kw={}, trendPlot_kw={},
-              color_palette=sns.set_palette('bright',100)):
+              color_palette=None):
     ### PLOTTING STYLE PARAMETERS
+    if not color_palette: color_palette = sns.set_palette('bright',100)
     nCols = 0 # total number of groups and samples
     for l in indeces: nCols+=len(l)
     ns = len(df)
@@ -60,11 +63,13 @@ def swarmplot(df, indeces, ax, vertical=1, spread=3, trend=1, operation=np.mean,
         try: trendPlot_kw['alpha']
         except: trendPlot_kw['alpha'] = .5
                 
+    # initialise storing and looping variables
     xticks = []; xlab = []
     x_offset = 0
     x_ind = 0
-    # loop over lists of groups (multiple controls)
-    for index in indeces:
+    
+    # Work
+    for index in indeces: # loop over lists of groups (multiple controls)
         nC = len(index)              
         ym = []; yy = []; xm = []; xx = []
         # marker style option
@@ -76,7 +81,7 @@ def swarmplot(df, indeces, ax, vertical=1, spread=3, trend=1, operation=np.mean,
             mfc = swarmPlot_kw['mfc']
         else: mfc = [swarmPlot_kw['mfc']]*nCols
         # loop over groups
-        for n,i in enumerate(index):
+        for n,i in enumerate(index): # loop over groups
             y_ = df[i]; y_ = y_[~np.isnan(y_)] # take nans out
             if not n and paired: nss = len(y_) # obtain number of ref samples
             xlab.append('N=%s'%y_.shape[0])
@@ -145,7 +150,7 @@ def swarmplot(df, indeces, ax, vertical=1, spread=3, trend=1, operation=np.mean,
     return ax
 
 
-
+#########################################
 # BOOTSTRAP ESTIMATION PLOT
 
 def bootstrap(x, nsh=10000, operation=np.mean):
@@ -186,7 +191,6 @@ def bca(data, alphas, statarray, statfunction, ostat, reps):
     '''
     import warnings
 
-
     # The bias correction value.
     s0 = 1.0*np.sum(statarray < ostat, axis = 0) / reps
     z0 = stats.norm.ppf(s0)
@@ -226,7 +230,7 @@ def bca(data, alphas, statarray, statfunction, ostat, reps):
 
 def bootstrap_plot(df, indeces, ax, operation=np.mean, nsh=10000, vertical=1,
                     paired=False, BCA=True, nbins=100, ci=.95, spread=5, SMOOTH=[1,3],
-                   bootPlot_kw={}, color_palette=sns.set_palette('bright',100), lbl_rot=0):
+                   bootPlot_kw={}, color_palette=None, lbl_rot=0):
     ### PLOTTING STYLE PARAMETERS
     nCols = 0 # total number of groups and samples
     col_ids = []
@@ -235,21 +239,31 @@ def bootstrap_plot(df, indeces, ax, operation=np.mean, nsh=10000, vertical=1,
         col_ids.extend(l)
     ns = len(df)
     # process keyword args
+    if not color_palette: color_palette = sns.set_palette('bright',100)
     if operation==np.mean:
         bootPlot_kw['label'] = 'Mean $\Delta$'
     elif operation==np.median:
         bootPlot_kw['label'] = 'Median $\Delta$'
     else:
         bootPlot_kw['label'] = 'Other difference'
-    try: bootPlot_kw['ci_size']
-    except: bootPlot_kw['ci_size'] = 4  # size of black dot
-    try: bootPlot_kw['ci_width']
-    except: bootPlot_kw['ci_width'] = 2 # width of ci line
-    try: bootPlot_kw['ref_width']
-    except: bootPlot_kw['ref_width'] = 2 # width of ref line
-    try: bootPlot_kw['ref_ls']
-    except: bootPlot_kw['ref_style'] = '--' # style of ref line
+    try:
+        bootPlot_kw['ci_size']
+    except:
+        bootPlot_kw['ci_size'] = 4  # size of black dot
+    try:
+        bootPlot_kw['ci_width']
+    except:
+        bootPlot_kw['ci_width'] = 2 # width of ci line
+    try:
+        bootPlot_kw['ref_width']
+    except:
+        bootPlot_kw['ref_width'] = 2 # width of ref line
+    try:
+        bootPlot_kw['ref_style']
+    except:
+        bootPlot_kw['ref_style'] = '--' # style of ref line
     
+    # SEt global params and initialise variables
     alphas = np.array([(1-ci)/2., 1-(1-ci)/2.]) # conf interval
     x_offset = 0;  # x-axis offset for multiple controls
     x_ind = 1 # index for colors etc
@@ -258,6 +272,7 @@ def bootstrap_plot(df, indeces, ax, operation=np.mean, nsh=10000, vertical=1,
     p = [] # p-value estimated from bootstrap resampling
     xticks = []
     
+    # Work
     for index in indeces: # loop over lists of groups (multiple controls)
         nC = len(index)
         # plot control sample
@@ -362,20 +377,20 @@ def bootstrap_plot(df, indeces, ax, operation=np.mean, nsh=10000, vertical=1,
 
 
 
+#########################################
 # MAIN FUNCTION THAT PUTS THE TWO TOGETHER
 
 def estimation_plot(input_, indeces=None, vertical=1, EXC=0, trend=1, spread=3, paired=False,
                     operation=np.mean, SWARM=1, nsh=5000, ci=.95, nbins=100, BCA=True,
-                    SMOOTH=[1,3], swarmPlot_kw={}, bootPlot_kw={}, lbl_rot=0,
-                    trendPlot_kw={}, color_palette=sns.color_palette('bright',100),
-                    FontScale=1, axs=None, figsize=None, stat=True):
+                    SMOOTH=[1,3], swarmPlot_kw={}, bootPlot_kw={}, trendPlot_kw={},
+                    lbl_rot=0, color_palette=None, FontScale=1, axs=None, figsize=None, stat=True):
     ''' INPUTS:
     - input_ = dict() containing the samples, indeces are labels
-    - indeces = list of indeces used for multiple control anal
-    ysis;
+    - indeces = list of indeces used for multiple control analysis; 
             each list element contains the indeces of the samples to compare
             in each analysis -
             e.g. list(ind1,ind2) for 2 controls or list(ind) for just one control
+            Default are all the keys/columns of input_
     - vertical = if true used a cumming's estimation layout, Gardner-Altman otherwise
     - EXC = if true display the distribution for the first class and set reference to 0
     - trend = if 0 plots no trend line
@@ -407,7 +422,7 @@ def estimation_plot(input_, indeces=None, vertical=1, EXC=0, trend=1, spread=3, 
         try: swarmPlot_kw['label'] # swarmplot style
         except: swarmPlot_kw['label'] = 'Swarm plot'
         try: swarmPlot_kw['s']
-        except: swarmPlot_kw['s'] = 30/np.log2(ns)
+        except: swarmPlot_kw['s'] = 7/np.log10(#samples)
         try: swarmPlot_kw['m']
         except: swarmPlot_kw['m'] = '.'
         try: swarmPlot_kw['mfc']
@@ -440,7 +455,8 @@ def estimation_plot(input_, indeces=None, vertical=1, EXC=0, trend=1, spread=3, 
     ------------
     
     OUTPUTS:
-    fig, mi, ci = figure object and optionally mean and conf interval of bootstrap
+    fig, [m,ci], p-values = figure object and optionally mean, confidence interval
+                            and p values of bootstrap estimation
     
     ------------
     
@@ -450,24 +466,22 @@ def estimation_plot(input_, indeces=None, vertical=1, EXC=0, trend=1, spread=3, 
     import difference_estimation_plot as dpl
     input_ = {'sample 1': np.random.rand(100), 'sample 2': np.random.rand(90) + 0.4,
          'sample 3': np.random.rand(200) - 0.2}
-    KEYS = list(input_.keys())
-    axs,m,ci = dpl.estimation_plot(input_, [KEYS])
+    axs,m,p = dpl.estimation_plot(input_,)
 
     - No stats returned:
     
      import difference_estimation_plot as dpl
     input_ = {'sample 1': np.random.rand(100), 'sample 2': np.random.rand(90) + 0.4,
          'sample 3': np.random.rand(200) - 0.2}
-    KEYS = list(input_.keys())
-    axs,m,ci = dpl.estimation_plot(input_, [KEYS], stat=False)
+    axs = dpl.estimation_plot(input_, stat=False)
 
     - Paired example:
 
     import difference_estimation_plot as dpl
     input_ = {'sample 1': np.random.rand(100), 'sample 2': np.random.rand(100) + 0.4,
          'sample 3': np.random.rand(100) - 0.2}
-    KEYS = list(input_.keys())
-    axs,m,ci = dpl.estimation_plot(input_, [KEYS], trend=1, paired=True)
+    axs,m,p = dpl.estimation_plot(input_, trend=1, paired=True) # links displayed
+    axs,m,p = dpl.estimation_plot(input_, trend=0, paired=True) # no links displayed
 
     - Median difference example:
 
@@ -475,13 +489,13 @@ def estimation_plot(input_, indeces=None, vertical=1, EXC=0, trend=1, spread=3, 
     input_ = {'sample 1': np.random.rand(100), 'sample 2': np.random.rand(100) + 0.4,
          'sample 3': np.random.rand(100) - 0.2}
     KEYS = list(input_.keys())
-    axs,m,ci = dpl.estimation_plot(input_, [KEYS], trend=1, operation=np.median)
+    axs,m,p = dpl.estimation_plot(input_, [KEYS], trend=1, operation=np.median)
     
     - Multiple controls
     input_ = {'sample 1': np.random.rand(100), 'sample 2': np.random.rand(100) + 0.4,
              'sample 3': np.random.rand(100) - 0.2, 'sample 4': np.random.rand(100) - 0.1}
     KEYS = list(input_.keys())
-    axs,m,ci = dpl.estimation_plot(input_, [KEYS[:2], KEYS[2:]], trend=1)
+    axs,m,p = dpl.estimation_plot(input_, [KEYS[:2], KEYS[2:]], trend=1)
 
 
     - Nested subplots example:
@@ -492,9 +506,9 @@ def estimation_plot(input_, indeces=None, vertical=1, EXC=0, trend=1, spread=3, 
      # obtain nested axes
      axs_nested = dpl.nested_subplots()
      # first estimation plot
-     axs, m, ci = dpl.estimation_plot(input_, [KEYS[:2],KEYS[2:]], axs=axs_nested[0])
+     axs, m, p = dpl.estimation_plot(input_, [KEYS[:2],KEYS[2:]], axs=axs_nested[0])
      # second estimation plot
-     axs, m, ci = dpl.estimation_plot(input_, [KEYS[:2],KEYS[2:]], axs=axs_nested[1])
+     axs, m, p = dpl.estimation_plot(input_, [KEYS[:2],KEYS[2:]], axs=axs_nested[1])
 
     '''
 
@@ -509,7 +523,7 @@ def estimation_plot(input_, indeces=None, vertical=1, EXC=0, trend=1, spread=3, 
     ns = len(df)
     
     # Set up the figure
-    sns.set(font_scale=FontScale); sns.set_style('ticks')
+    sns.set(style='ticks', font_scale=FontScale)
     if not axs:
         if vertical: # Cumming's estimation plot
             if figsize==None: figsize = (1*nCols,4)
@@ -526,7 +540,8 @@ def estimation_plot(input_, indeces=None, vertical=1, EXC=0, trend=1, spread=3, 
                   gridspec_kw={'wspace': 0.1}, figsize=figsize)
     
     # Swarmplot
-    swarmPlot_kw['s'] = 7/np.log10(ns) # set marker size depending on sample size
+    try: swarmPlot_kw['s'] # set the marker size here because it's not passed correctly
+    except: swarmPlot_kw['s'] = 7/np.log10(ns) # set marker size depending on sample size
     axs[0] = swarmplot(df, indeces, axs[0], vertical, spread=spread, trend=trend, paired=paired,
               operation=operation, swarmPlot_kw=swarmPlot_kw, trendPlot_kw=trendPlot_kw, 
               color_palette=color_palette)
