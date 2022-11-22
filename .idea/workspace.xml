@@ -5,7 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="864c80b3-7db1-45c2-8c42-ab0facd50410" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/README" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,7 +56,7 @@
       <updated>1668875748436</updated>
       <workItem from="1668875753379" duration="2113000" />
       <workItem from="1669029034798" duration="3014000" />
-      <workItem from="1669120449860" duration="295000" />
+      <workItem from="1669120449860" duration="1061000" />
     </task>
     <task id="LOCAL-00001" summary="Modified README file and added requirement.txt">
       <created>1668877488410</created>
@@ -85,7 +86,14 @@
       <option name="project" value="LOCAL" />
       <updated>1669032017281</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Modified README to be markdown">
+      <created>1669120783241</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1669120783241</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -95,6 +103,7 @@
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <MESSAGE value="Modified README file and added requirement.txt" />
     <MESSAGE value="Added PC3 visualization and description" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added PC3 visualization and description" />
+    <MESSAGE value="Modified README to be markdown" />
+    <option name="LAST_COMMIT_MESSAGE" value="Modified README to be markdown" />
   </component>
 </project>
