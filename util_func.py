@@ -261,7 +261,7 @@ def corrGraph(dat, THR=0):
     return corrmat
 
 
-def GLMgraph_lin(actmat_, symm=1, z=1):
+def GLMgraph(actmat_, symm=1, z=1):
     """linear GLM graph"""
     from sklearn.linear_model import TweedieRegressor
     from sklearn.preprocessing import StandardScaler
