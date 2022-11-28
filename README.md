@@ -13,3 +13,5 @@ The notebook has been expanded to perform some basic computation with one exempl
 These extra analyses were added for the MAIN Educational 2022 workshop (9-10/12/2022, Montreal, CA).
 
 A Colab notebook version is also available [here](https://colab.research.google.com/drive/1eQjaabGHZFHwYjiM516S0UjeL9B3-2iZ#scrollTo=Rvuf55uzAKXn).
+
+The data shared here is copyright to the University of Oxford.
