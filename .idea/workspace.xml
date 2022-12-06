@@ -4,9 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="864c80b3-7db1-45c2-8c42-ab0facd50410" name="Changes" comment="added copyright statement to readme file">
+    <list default="true" id="864c80b3-7db1-45c2-8c42-ab0facd50410" name="Changes" comment="Improved notebook commenting">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cofiringTopology.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/cofiringTopology.ipynb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,6 +60,7 @@
       <workItem from="1669294156539" duration="268000" />
       <workItem from="1669649304267" duration="376000" />
       <workItem from="1669649766163" duration="1297000" />
+      <workItem from="1669739909894" duration="329000" />
     </task>
     <task id="LOCAL-00001" summary="Modified README file and added requirement.txt">
       <created>1668877488410</created>
@@ -125,7 +125,14 @@
       <option name="project" value="LOCAL" />
       <updated>1669649457780</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Improved notebook commenting">
+      <created>1669740172593</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1669740172593</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -150,6 +157,7 @@
     <MESSAGE value="README formatting" />
     <MESSAGE value="refactoring function names" />
     <MESSAGE value="added copyright statement to readme file" />
-    <option name="LAST_COMMIT_MESSAGE" value="added copyright statement to readme file" />
+    <MESSAGE value="Improved notebook commenting" />
+    <option name="LAST_COMMIT_MESSAGE" value="Improved notebook commenting" />
   </component>
 </project>
